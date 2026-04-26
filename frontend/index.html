@@ -505,14 +505,21 @@ function logout() {
   }
 
   // ── DOWNLOAD ──
-  function downloadMeme() {
-    if (!lastMemeUrl) return;
+ async function downloadMeme() {
+  if (!lastMemeUrl) return;
+  try {
+    const response = await fetch(lastMemeUrl);
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
-    a.href = lastMemeUrl;
+    a.href = url;
     a.download = 'meme.jpg';
-    a.target = '_blank';
     a.click();
+    window.URL.revokeObjectURL(url);
+  } catch(err) {
+    window.open(lastMemeUrl, '_blank');
   }
+}
 
   // ── GALLERY ──
   function addToGallery(url, text, name) {
