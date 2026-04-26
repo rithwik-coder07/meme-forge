@@ -11,7 +11,8 @@ const PORT = process.env.PORT || 5000;
 
 app.use(cors({ origin: '*' }));
 app.use(express.json());
-app.use(express.static('frontend'));
+const path = require('path');
+app.use(express.static(path.join(__dirname, '..', 'frontend')));
 
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
