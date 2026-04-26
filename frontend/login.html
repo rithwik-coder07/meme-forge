@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MemeForge — Login</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:#080808;--s1:#111111;--s2:#1c1c1c;--border:#2a2a2a;
+      --text:#f2f2f2;--muted:#7a7a7a;--dim:#3a3a3a;
+      --yellow:#f0c419;--yel2:#e0b400;--red:#e8473f;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;display:flex;flex-direction:column}
+    nav{height:58px;display:flex;align-items:center;padding:0 5%;border-bottom:1px solid var(--border);background:rgba(8,8,8,.93)}
+    .logo{display:flex;align-items:center;gap:9px;text-decoration:none}
+    .logo-mark{width:32px;height:32px;border-radius:8px;background:var(--yellow);display:flex;align-items:center;justify-content:center;font-size:16px}
+    .logo-text{font-family:'Bebas Neue',sans-serif;font-size:1.35rem;letter-spacing:.06em;color:var(--text)}
+    .logo-text span{color:var(--yellow)}
+    .main{flex:1;display:flex;align-items:center;justify-content:center;padding:2rem 1rem}
+    .auth-box{width:100%;max-width:420px;background:var(--s1);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+    .tab-bar{display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border)}
+    .tab{padding:.9rem;text-align:center;font-size:.85rem;font-weight:600;cursor:pointer;background:none;border:none;color:var(--muted);transition:all .18s;border-bottom:2px solid transparent}
+    .tab.active{color:var(--yellow);border-bottom-color:var(--yellow)}
+    .form-wrap{padding:2rem}
+    .form-title{font-family:'Bebas Neue',sans-serif;font-size:1.8rem;letter-spacing:.04em;margin-bottom:.4rem}
+    .form-sub{font-size:.82rem;color:var(--muted);margin-bottom:1.8rem}
+    .fld{margin-bottom:1rem}
+    .lbl{display:block;font-size:.7rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:.35rem}
+    .inp{width:100%;background:var(--s2);border:1px solid var(--border);border-radius:8px;padding:.65rem .9rem;color:var(--text);font-family:'Outfit',sans-serif;font-size:.9rem;outline:none;transition:border-color .15s}
+    .inp:focus{border-color:var(--yellow)}
+    .inp::placeholder{color:var(--dim)}
+    .submit-btn{width:100%;padding:.7rem;margin-top:.5rem;background:var(--yellow);color:#000;border:none;border-radius:8px;font-family:'Outfit',sans-serif;font-weight:700;font-size:.95rem;cursor:pointer;transition:background .18s}
+    .submit-btn:hover{background:var(--yel2)}
+    .divider{display:flex;align-items:center;gap:1rem;margin:1.2rem 0;color:var(--dim);font-size:.78rem}
+    .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--border)}
+    .google-btn{width:100%;padding:.65rem;background:none;border:1px solid var(--border);border-radius:8px;color:var(--text);font-family:'Outfit',sans-serif;font-weight:600;font-size:.88rem;cursor:pointer;transition:border-color .18s;display:flex;align-items:center;justify-content:center;gap:.6rem}
+    .google-btn:hover{border-color:var(--muted)}
+    .error-msg{background:rgba(232,71,63,.1);border:1px solid rgba(232,71,63,.3);border-radius:7px;padding:.6rem .8rem;font-size:.8rem;color:#ff6b6b;margin-bottom:1rem;display:none}
+    .error-msg.show{display:block}
+    .success-msg{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);border-radius:7px;padding:.6rem .8rem;font-size:.8rem;color:#4ade80;margin-bottom:1rem;display:none}
+    .success-msg.show{display:block}
+    .forgot{text-align:right;margin-top:.3rem;font-size:.75rem;color:var(--muted);cursor:pointer}
+    .forgot:hover{color:var(--text)}
+    footer{border-top:1px solid var(--border);padding:1.2rem 5%;text-align:center;font-size:.78rem;color:var(--dim)}
+  </style>
+</head>
+<body>
+<nav>
+  <a class="logo" href="index.html">
+    <div class="logo-mark">🎭</div>
+    <span class="logo-text">Meme<span>Forge</span></span>
+  </a>
+</nav>
+
+<div class="main">
+  <div class="auth-box">
+    <div class="tab-bar">
+      <button class="tab active" id="tab-signin" onclick="switchTab('signin')">Sign In</button>
+      <button class="tab" id="tab-signup" onclick="switchTab('signup')">Sign Up</button>
+    </div>
+
+    <!-- SIGN IN -->
+    <div class="form-wrap" id="signinForm">
+      <div class="form-title">Welcome back</div>
+      <div class="form-sub">Sign in to continue creating memes</div>
+      <div class="error-msg" id="signin-error"></div>
+      <div class="success-msg" id="signin-success"></div>
+      <div class="fld">
+        <label class="lbl">Email</label>
+        <input class="inp" type="email" id="signin-email" placeholder="you@example.com"/>
+      </div>
+      <div class="fld">
+        <label class="lbl">Password</label>
+        <input class="inp" type="password" id="signin-pass" placeholder="••••••••"/>
+        <div class="forgot" onclick="forgotPassword()">Forgot password?</div>
+      </div>
+      <button class="submit-btn" onclick="signIn()">Sign In</button>
+      <div class="divider">or</div>
+      <button class="google-btn" onclick="googleLogin()">
+        <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707s.102-1.167.282-1.707V4.961H.957C.347 6.175 0 7.55 0 9s.348 2.825.957 4.039l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z"/></svg>
+        Continue with Google
+      </button>
+    </div>
+
+    <!-- SIGN UP -->
+    <div class="form-wrap" id="signupForm" style="display:none">
+      <div class="form-title">Create account</div>
+      <div class="form-sub">Join MemeForge and start creating</div>
+      <div class="error-msg" id="signup-error"></div>
+      <div class="success-msg" id="signup-success"></div>
+      <div class="fld">
+        <label class="lbl">Full Name</label>
+        <input class="inp" type="text" id="signup-name" placeholder="Your name"/>
+      </div>
+      <div class="fld">
+        <label class="lbl">Email</label>
+        <input class="inp" type="email" id="signup-email" placeholder="you@example.com"/>
+      </div>
+      <div class="fld">
+        <label class="lbl">Password</label>
+        <input class="inp" type="password" id="signup-pass" placeholder="Min 6 characters"/>
+      </div>
+      <button class="submit-btn" onclick="signUp()">Create Account</button>
+      <div class="divider">or</div>
+      <button class="google-btn" onclick="googleLogin()">
+        <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z"/><path fill="#34A853" d="M9 18c2.43 0 4.467-.806 5.956-2.184l-2.908-2.258c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9 18z"/><path fill="#FBBC05" d="M3.964 10.707c-.18-.54-.282-1.117-.282-1.707s.102-1.167.282-1.707V4.961H.957C.347 6.175 0 7.55 0 9s.348 2.825.957 4.039l3.007-2.332z"/><path fill="#EA4335" d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0 5.482 0 2.438 2.017.957 4.961L3.964 7.293C4.672 5.166 6.656 3.58 9 3.58z"/></svg>
+        Continue with Google
+      </button>
+    </div>
+  </div>
+</div>
+
+<footer>© 2025 MemeForge · All rights reserved</footer>
+
+<script>
+  function switchTab(tab) {
+    document.getElementById('signinForm').style.display = tab === 'signin' ? '' : 'none';
+    document.getElementById('signupForm').style.display = tab === 'signup' ? '' : 'none';
+    document.getElementById('tab-signin').classList.toggle('active', tab === 'signin');
+    document.getElementById('tab-signup').classList.toggle('active', tab === 'signup');
+  }
+
+  function signIn() {
+    const email = document.getElementById('signin-email').value.trim();
+    const pass  = document.getElementById('signin-pass').value.trim();
+    const errBox = document.getElementById('signin-error');
+    const sucBox = document.getElementById('signin-success');
+    errBox.classList.remove('show'); sucBox.classList.remove('show');
+    if (!email || !pass) { errBox.textContent = 'Please fill in all fields!'; errBox.classList.add('show'); return; }
+    if (!email.includes('@')) { errBox.textContent = 'Please enter a valid email!'; errBox.classList.add('show'); return; }
+    if (pass.length < 6) { errBox.textContent = 'Password must be at least 6 characters!'; errBox.classList.add('show'); return; }
+    const users = JSON.parse(localStorage.getItem('memeforge_users') || '[]');
+    const user = users.find(u => u.email === email && u.password === pass);
+    if (!user) { errBox.textContent = 'Invalid email or password!'; errBox.classList.add('show'); return; }
+    localStorage.setItem('memeforge_user', JSON.stringify(user));
+    sucBox.textContent = '✅ Login successful! Redirecting...';
+    sucBox.classList.add('show');
+    setTimeout(() => { window.location.href = 'index.html'; }, 1000);
+  }
+
+  function signUp() {
+    const name  = document.getElementById('signup-name').value.trim();
+    const email = document.getElementById('signup-email').value.trim();
+    const pass  = document.getElementById('signup-pass').value.trim();
+    const errBox = document.getElementById('signup-error');
+    const sucBox = document.getElementById('signup-success');
+    errBox.classList.remove('show'); sucBox.classList.remove('show');
+    if (!name || !email || !pass) { errBox.textContent = 'Please fill in all fields!'; errBox.classList.add('show'); return; }
+    if (!email.includes('@')) { errBox.textContent = 'Please enter a valid email!'; errBox.classList.add('show'); return; }
+    if (pass.length < 6) { errBox.textContent = 'Password must be at least 6 characters!'; errBox.classList.add('show'); return; }
+    const users = JSON.parse(localStorage.getItem('memeforge_users') || '[]');
+    if (users.find(u => u.email === email)) { errBox.textContent = 'Email already registered!'; errBox.classList.add('show'); return; }
+    users.push({ name, email, password: pass });
+    localStorage.setItem('memeforge_users', JSON.stringify(users));
+    localStorage.setItem('memeforge_user', JSON.stringify({ name, email }));
+    sucBox.textContent = '✅ Account created! Redirecting...';
+    sucBox.classList.add('show');
+    setTimeout(() => { window.location.href = 'index.html'; }, 1000);
+  }
+
+  function googleLogin() {
+    const user = { name: 'Google User', email: 'user@gmail.com' };
+    localStorage.setItem('memeforge_user', JSON.stringify(user));
+    window.location.href = 'index.html';
+  }
+
+  function forgotPassword() {
+    const email = document.getElementById('signin-email').value.trim();
+    if (!email) { alert('Please enter your email first!'); return; }
+    alert('Password reset link sent to ' + email);
+  }
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const active = document.getElementById('signinForm').style.display !== 'none';
+      if (active) signIn(); else signUp();
+    }
+  });
+</script>
+</body>
+</html>

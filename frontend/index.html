@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MemeForge — AI Meme Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg:     #080808;
+      --s1:     #111111;
+      --s2:     #1c1c1c;
+      --s3:     #272727;
+      --border: #2a2a2a;
+      --text:   #f2f2f2;
+      --muted:  #7a7a7a;
+      --dim:    #3a3a3a;
+      --yellow: #f0c419;
+      --yel2:   #e0b400;
+      --red:    #e8473f;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;line-height:1.6;overflow-x:hidden}
+    ::-webkit-scrollbar{width:5px}
+    ::-webkit-scrollbar-track{background:var(--bg)}
+    ::-webkit-scrollbar-thumb{background:var(--dim);border-radius:3px}
+
+    nav{
+      position:sticky;top:0;z-index:200;height:58px;
+      display:flex;align-items:center;padding:0 5%;
+      background:rgba(8,8,8,.93);backdrop-filter:blur(14px);
+      border-bottom:1px solid var(--border);
+    }
+    .nav-inner{width:100%;max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between}
+    .logo{display:flex;align-items:center;gap:9px;text-decoration:none}
+    .logo-mark{width:32px;height:32px;border-radius:8px;background:var(--yellow);display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+    .logo-text{font-family:'Bebas Neue',sans-serif;font-size:1.35rem;letter-spacing:.06em;color:var(--text)}
+    .logo-text span{color:var(--yellow)}
+    .nav-links{display:flex;gap:1.8rem}
+    .nav-links a{color:var(--muted);text-decoration:none;font-size:.875rem;font-weight:500;transition:color .18s}
+    .nav-links a:hover{color:var(--text)}
+    .nav-right{display:flex;align-items:center;gap:.75rem}
+    .n-btn{font-family:'Outfit',sans-serif;font-size:.82rem;font-weight:600;cursor:pointer;border-radius:7px;padding:.38rem 1rem;transition:all .18s}
+    .n-out{background:none;border:1px solid var(--border);color:var(--text)}
+    .n-out:hover{border-color:var(--dim)}
+    .n-fill{background:var(--yellow);border:none;color:#000}
+    .n-fill:hover{background:var(--yel2)}
+
+    .hero{max-width:1200px;margin:0 auto;padding:70px 5% 60px;display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center}
+    .hero-eyebrow{display:inline-flex;align-items:center;gap:.5rem;background:var(--s2);border:1px solid var(--border);padding:.3rem .85rem;border-radius:999px;font-size:.73rem;font-weight:600;color:var(--muted);letter-spacing:.05em;text-transform:uppercase;margin-bottom:1.4rem}
+    .hero-eyebrow-dot{width:6px;height:6px;border-radius:50%;background:var(--yellow)}
+    h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,5.5vw,4.8rem);line-height:.96;letter-spacing:.02em;margin-bottom:1.2rem}
+    h1 em{color:var(--yellow);font-style:normal}
+    .hero-desc{color:var(--muted);font-size:.95rem;line-height:1.75;max-width:400px;margin-bottom:2rem}
+    .hero-cta{display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+    .cta-primary{background:var(--yellow);color:#000;border:none;border-radius:8px;padding:.65rem 1.5rem;font-family:'Outfit',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer;transition:background .18s;display:flex;align-items:center;gap:.5rem}
+    .cta-primary:hover{background:var(--yel2)}
+    .cta-ghost{color:var(--muted);font-size:.85rem;font-weight:500;display:flex;align-items:center;gap:.4rem;cursor:pointer;background:none;border:none;transition:color .18s}
+    .cta-ghost:hover{color:var(--text)}
+    .hero-note{margin-top:2rem;display:flex;align-items:flex-start;gap:.75rem;padding:.75rem 1rem;background:var(--s1);border:1px solid var(--border);border-radius:8px;font-size:.78rem;color:var(--muted);max-width:420px}
+
+    .gen-panel{background:var(--s1);border:1px solid var(--border);border-radius:14px;overflow:hidden}
+    .gen-header{padding:.9rem 1.2rem;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between}
+    .gen-header-title{font-size:.78rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+    .gen-tab-bar{display:flex;gap:2px}
+    .gen-tab{font-size:.75rem;font-weight:600;padding:.25rem .7rem;border-radius:5px;cursor:pointer;background:none;border:none;color:var(--muted);transition:all .15s}
+    .gen-tab.active{background:var(--s3);color:var(--text)}
+    .gen-body{padding:1.2rem}
+
+    .tpl-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:1rem;max-height:180px;overflow-y:auto}
+    .tpl-item{aspect-ratio:1;border-radius:6px;overflow:hidden;border:2px solid transparent;cursor:pointer;transition:border-color .15s;background:var(--s2);position:relative}
+    .tpl-item:hover{border-color:var(--dim)}
+    .tpl-item.selected{border-color:var(--yellow)}
+    .tpl-item img{width:100%;height:100%;object-fit:cover;display:block}
+    .tpl-label{position:absolute;bottom:0;left:0;right:0;background:rgba(0,0,0,.75);font-size:.5rem;font-weight:600;text-align:center;padding:2px 0;color:#ccc;letter-spacing:.03em}
+    .tpl-loading{text-align:center;padding:1rem;color:var(--muted);font-size:.8rem;grid-column:span 4}
+
+    .fld{margin-bottom:.75rem}
+    .lbl{display:block;font-size:.7rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:.3rem}
+    .inp{width:100%;background:var(--s2);border:1px solid var(--border);border-radius:7px;padding:.55rem .8rem;color:var(--text);font-family:'Outfit',sans-serif;font-size:.85rem;outline:none;transition:border-color .15s}
+    .inp:focus{border-color:var(--yellow)}
+    .inp::placeholder{color:var(--dim)}
+    select.inp{appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%237a7a7a'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right .8rem center;padding-right:2rem;cursor:pointer}
+    .two-col{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+
+    .gen-btn{width:100%;padding:.65rem;background:var(--yellow);color:#000;border:none;border-radius:8px;font-family:'Outfit',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer;transition:background .18s;display:flex;align-items:center;justify-content:center;gap:.5rem;margin-top:.2rem}
+    .gen-btn:hover{background:var(--yel2)}
+    .gen-btn:disabled{opacity:.45;cursor:not-allowed}
+    .spinner{width:15px;height:15px;border:2px solid rgba(0,0,0,.25);border-top-color:#000;border-radius:50%;animation:spin .65s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    .prev-wrap{background:#000;border-radius:8px;overflow:hidden;min-height:200px;display:flex;align-items:center;justify-content:center;margin-bottom:.8rem;border:1px solid var(--border);position:relative}
+    .prev-wrap img{max-width:100%;max-height:280px;display:block}
+    .prev-placeholder{color:var(--dim);font-size:.82rem;text-align:center;padding:1.5rem;line-height:1.9}
+    .prev-placeholder span{display:block;font-size:2rem;margin-bottom:.4rem}
+    .prev-actions{display:flex;gap:.6rem}
+    .p-btn{flex:1;padding:.5rem;border-radius:7px;font-family:'Outfit',sans-serif;font-size:.8rem;font-weight:600;cursor:pointer;transition:all .18s}
+    .p-dl{background:var(--s3);border:1px solid var(--border);color:var(--text)}
+    .p-dl:hover{border-color:var(--muted)}
+    .p-re{background:none;border:1px solid var(--border);color:var(--muted)}
+    .p-re:hover{border-color:var(--dim);color:var(--text)}
+
+    .ai-tip{margin-top:.7rem;padding:.6rem .8rem;background:rgba(240,196,25,.07);border:1px solid rgba(240,196,25,.2);border-radius:7px;font-size:.78rem;color:var(--muted);display:none}
+    .ai-tip.show{display:block}
+    .ai-tip strong{color:var(--yellow)}
+
+    .div-wrap{max-width:1200px;margin:0 auto;padding:0 5%}
+    .div-line{border:none;border-top:1px solid var(--border)}
+
+    .features{max-width:1200px;margin:0 auto;padding:70px 5%}
+    .sec-label{font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--yellow);margin-bottom:.5rem}
+    .sec-title{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.8rem,3vw,2.8rem);letter-spacing:.03em;line-height:1}
+    .sec-sub{color:var(--muted);font-size:.9rem;margin-top:.6rem;max-width:440px}
+    .sec-header{margin-bottom:2.8rem}
+    .feat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border)}
+    .feat-card{background:var(--bg);padding:1.8rem;transition:background .18s}
+    .feat-card:hover{background:var(--s1)}
+    .feat-num{font-family:'Bebas Neue',sans-serif;font-size:2.5rem;color:var(--border);line-height:1;margin-bottom:.8rem}
+    .feat-icon{width:38px;height:38px;border-radius:8px;background:var(--s2);display:flex;align-items:center;justify-content:center;font-size:1rem;margin-bottom:1rem}
+    .feat-title{font-weight:700;font-size:.95rem;margin-bottom:.4rem}
+    .feat-desc{font-size:.82rem;color:var(--muted);line-height:1.65}
+
+    .how{max-width:1200px;margin:0 auto;padding:70px 5%}
+    .steps-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2rem;margin-top:2.8rem}
+    .step-card{position:relative}
+    .step-card:not(:last-child)::after{content:'';position:absolute;top:19px;right:-1rem;width:2rem;height:1px;background:var(--border)}
+    .step-top{display:flex;align-items:center;gap:.8rem;margin-bottom:.9rem}
+    .step-circle{width:40px;height:40px;border-radius:50%;flex-shrink:0;background:var(--s2);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',sans-serif;font-size:1.1rem;color:var(--muted);transition:all .2s}
+    .step-card:hover .step-circle{border-color:var(--yellow);color:var(--yellow)}
+    .step-title{font-weight:700;font-size:.95rem}
+    .step-desc{font-size:.83rem;color:var(--muted);line-height:1.65}
+
+    .gallery{max-width:1200px;margin:0 auto;padding:70px 5%}
+    .gallery-header{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:1.5rem}
+    .gallery-link{font-size:.82rem;color:var(--muted);text-decoration:none;transition:color .18s}
+    .gallery-link:hover{color:var(--text)}
+    .meme-gallery{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+    .meme-card{border-radius:8px;overflow:hidden;background:var(--s1);border:1px solid var(--border);transition:transform .2s,border-color .2s;cursor:pointer}
+    .meme-card:hover{transform:translateY(-3px);border-color:var(--dim)}
+    .meme-card-img{aspect-ratio:1;overflow:hidden;background:#000;display:flex;align-items:center;justify-content:center}
+    .meme-card-img img{width:100%;height:100%;object-fit:cover}
+    .meme-card-foot{padding:.6rem .75rem}
+    .meme-card-tag{font-size:.68rem;color:var(--muted);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+    .meme-card-text{font-size:.8rem;font-weight:600;margin-top:.1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+    .cta-banner{max-width:1200px;margin:0 auto;padding:0 5% 70px}
+    .cta-inner{background:var(--s1);border:1px solid var(--border);border-radius:14px;padding:3.5rem;display:flex;align-items:center;justify-content:space-between;gap:2rem;flex-wrap:wrap}
+    .cta-inner h2{font-family:'Bebas Neue',sans-serif;font-size:clamp(1.6rem,3vw,2.6rem);letter-spacing:.04em;line-height:1}
+    .cta-inner h2 em{color:var(--yellow);font-style:normal}
+    .cta-inner p{color:var(--muted);font-size:.88rem;margin-top:.5rem;max-width:380px}
+    .cta-actions{display:flex;gap:.75rem;flex-wrap:wrap}
+
+    footer{border-top:1px solid var(--border);padding:1.8rem 5%}
+    .footer-inner{max-width:1200px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1.2rem}
+    .footer-left{display:flex;align-items:center;gap:1.5rem}
+    .footer-links{display:flex;gap:1.5rem}
+    .footer-links a{font-size:.8rem;color:var(--muted);text-decoration:none;transition:color .18s}
+    .footer-links a:hover{color:var(--text)}
+    .footer-right{font-size:.78rem;color:var(--dim)}
+    .footer-right span{color:var(--muted)}
+
+    @media(max-width:900px){
+      .hero{grid-template-columns:1fr;gap:2.5rem;padding-top:40px}
+      .feat-grid{grid-template-columns:1fr}
+      .steps-grid{grid-template-columns:1fr;gap:1.5rem}
+      .step-card::after{display:none}
+      .meme-gallery{grid-template-columns:repeat(2,1fr)}
+      .nav-links{display:none}
+      .hero-desc,.hero-note{max-width:100%}
+    }
+
+    @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:none}}
+    .fu{animation:fadeUp .5s forwards}
+    .fu1{animation-delay:.05s;opacity:0}
+    .fu2{animation-delay:.15s;opacity:0}
+    .fu3{animation-delay:.25s;opacity:0}
+  </style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-inner">
+    <a class="logo" href="#">
+      <div class="logo-mark">🎭</div>
+      <span class="logo-text">Meme<span>Forge</span></span>
+    </a>
+    <div class="nav-links">
+      <a href="#features">Features</a>
+      <a href="#how">How it works</a>
+      <a href="#gallery">Gallery</a>
+    </div>
+    <div id="nav-auth">
+  <button class="n-btn n-out" onclick="window.location.href='login.html'">Sign in</button>
+  <button class="n-btn n-fill" onclick="window.location.href='login.html'">Get started</button>
+</div>
+<div id="nav-user" style="display:none;align-items:center;gap:.75rem">
+  <span id="nav-username" style="font-size:.85rem;color:var(--muted)"></span>
+  <button class="n-btn n-out" onclick="logout()" style="font-size:.82rem">Logout</button>
+</div>
+  </div>
+</nav>
+
+<section class="hero">
+  <div class="hero-left">
+    <div class="hero-eyebrow"><span class="hero-eyebrow-dot"></span>AI-Powered Meme Generator</div>
+    <h1>Turn any idea<br>into a <em>viral</em><br>meme</h1>
+    <p class="hero-desc">Pick a real meme template, type your text, choose a style — MemeForge uses AI to suggest punchy captions and render your meme in seconds.</p>
+    <div class="hero-cta">
+      <button class="cta-primary" onclick="document.getElementById('descInput').focus()">✦ Start creating</button>
+      <button class="cta-ghost" onclick="document.getElementById('gallery').scrollIntoView({behavior:'smooth'})">See examples →</button>
+    </div>
+    <div class="hero-note">
+      <span style="font-size:1rem;flex-shrink:0">💡</span>
+      <span>Describe your idea and let AI write the caption — or type your own top and bottom text.</span>
+    </div>
+  </div>
+
+  <div class="gen-panel">
+    <div class="gen-header">
+      <span class="gen-header-title">Meme Studio</span>
+      <div class="gen-tab-bar">
+        <button class="gen-tab active" id="tab-create" onclick="switchTab('create')">Create</button>
+        <button class="gen-tab" id="tab-preview" onclick="switchTab('preview')">Preview</button>
+      </div>
+    </div>
+
+    <div class="gen-body" id="tabCreate">
+      <div class="fld">
+        <span class="lbl">Choose template</span>
+        <div class="tpl-grid" id="tplGrid">
+          <div class="tpl-loading">Loading real meme templates... 🎭</div>
+        </div>
+      </div>
+      <div class="fld">
+        <label class="lbl" for="descInput">Describe your meme (AI will suggest text)</label>
+        <input class="inp" type="text" id="descInput" placeholder="e.g. me before vs after morning coffee"/>
+      </div>
+      <div class="two-col" style="margin-bottom:.75rem">
+        <div>
+          <label class="lbl" for="topText">Top text</label>
+          <input class="inp" type="text" id="topText" placeholder="Top caption"/>
+        </div>
+        <div>
+          <label class="lbl" for="botText">Bottom text</label>
+          <input class="inp" type="text" id="botText" placeholder="Bottom caption"/>
+        </div>
+      </div>
+      <div class="two-col" style="margin-bottom:.75rem">
+        <div>
+          <label class="lbl">Style</label>
+          <select class="inp" id="styleSelect">
+            <option>Funny / Relatable</option>
+            <option>Dark Humor</option>
+            <option>Sarcastic</option>
+            <option>Wholesome</option>
+            <option>Motivational</option>
+            <option>Absurdist</option>
+          </select>
+        </div>
+        <div>
+          <label class="lbl">Font color</label>
+          <select class="inp" id="colorSelect">
+            <option value="white">White (classic)</option>
+            <option value="black">Black</option>
+          </select>
+        </div>
+      </div>
+      <button class="gen-btn" id="genBtn" onclick="generateMeme()">
+        <span id="genBtnInner">✦ Generate meme</span>
+      </button>
+      <div class="ai-tip" id="aiTip"></div>
+    </div>
+
+    <div class="gen-body" id="tabPreview" style="display:none">
+      <div class="prev-wrap" id="prevWrap">
+        <div class="prev-placeholder" id="prevPlaceholder"><span>🎭</span>Generate a meme first<br>to see the preview here</div>
+        <img id="memeResult" style="display:none" alt="Generated meme"/>
+      </div>
+      <div class="prev-actions">
+        <button class="p-btn p-dl" onclick="downloadMeme()">⬇ Download</button>
+        <button class="p-btn p-re" onclick="generateMeme()">↻ Regenerate</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="div-wrap"><hr class="div-line"/></div>
+
+<section class="features" id="features">
+  <div class="sec-header">
+    <div class="sec-label">Features</div>
+    <h2 class="sec-title">Everything you need<br>to create memes</h2>
+    <p class="sec-sub">A clean, focused toolset that gets out of the way and lets you create faster.</p>
+  </div>
+  <div class="feat-grid">
+    <div class="feat-card fu fu1">
+      <div class="feat-num">01</div>
+      <div class="feat-icon">🤖</div>
+      <div class="feat-title">AI Caption Generator</div>
+      <p class="feat-desc">Describe your idea and AI suggests punchy captions tuned to your chosen humor style.</p>
+    </div>
+    <div class="feat-card fu fu2">
+      <div class="feat-num">02</div>
+      <div class="feat-icon">🖼️</div>
+      <div class="feat-title">Real Meme Templates</div>
+      <p class="feat-desc">Pick from 20+ real popular meme formats — Drake, Distracted Boyfriend, Doge and more.</p>
+    </div>
+    <div class="feat-card fu fu3">
+      <div class="feat-num">03</div>
+      <div class="feat-icon">⬇️</div>
+      <div class="feat-title">Instant Download</div>
+      <p class="feat-desc">Download your finished meme instantly — ready to post on Instagram, WhatsApp, anywhere.</p>
+    </div>
+  </div>
+</section>
+
+<div class="div-wrap"><hr class="div-line"/></div>
+
+<section class="how" id="how">
+  <div class="sec-header">
+    <div class="sec-label">How it works</div>
+    <h2 class="sec-title">Three steps to your meme</h2>
+    <p class="sec-sub">No signup required. Pick, type, download — that's it.</p>
+  </div>
+  <div class="steps-grid">
+    <div class="step-card">
+      <div class="step-top"><div class="step-circle">1</div><div class="step-title">Pick a template</div></div>
+      <p class="step-desc">Choose from 20+ real meme formats. Click to select instantly.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-top"><div class="step-circle">2</div><div class="step-title">Add your text</div></div>
+      <p class="step-desc">Write your own captions — or describe your idea and let AI write them.</p>
+    </div>
+    <div class="step-card">
+      <div class="step-top"><div class="step-circle">3</div><div class="step-title">Download & share</div></div>
+      <p class="step-desc">Hit Generate and download your meme. Share it anywhere instantly.</p>
+    </div>
+  </div>
+</section>
+
+<div class="div-wrap"><hr class="div-line"/></div>
+
+<section class="gallery" id="gallery">
+  <div class="gallery-header">
+    <div>
+      <div class="sec-label">Gallery</div>
+      <h2 class="sec-title" style="font-size:clamp(1.6rem,2.5vw,2.2rem)">Recently generated</h2>
+    </div>
+    <a href="#" class="gallery-link">Browse all →</a>
+  </div>
+  <div class="meme-gallery" id="memeGallery">
+    <div style="grid-column:span 4;text-align:center;padding:2rem;color:var(--muted);font-size:.85rem">
+      Generate your first meme to see it here! 🎭
+    </div>
+  </div>
+</section>
+
+<div class="cta-banner">
+  <div class="cta-inner">
+    <div>
+      <h2>Ready to make<br>your <em>first meme?</em></h2>
+      <p>No account needed. Open the studio, pick a template, and go.</p>
+    </div>
+    <div class="cta-actions">
+      <button class="cta-primary" onclick="window.scrollTo({top:0,behavior:'smooth'})">✦ Start creating</button>
+      <button class="n-btn n-out" style="padding:.65rem 1.3rem;font-size:.9rem">Learn more</button>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-inner">
+    <div class="footer-left">
+      <a class="logo" href="#" style="text-decoration:none">
+        <div class="logo-mark" style="width:26px;height:26px;font-size:13px">🎭</div>
+        <span class="logo-text" style="font-size:1.1rem">Meme<span>Forge</span></span>
+      </a>
+      <div class="footer-links">
+        <a href="#">Privacy</a><a href="#">Terms</a><a href="#">API</a><a href="#">Contact</a>
+      </div>
+    </div>
+    <div class="footer-right">Built with <span>HTML · CSS · Node.js · Gemini AI</span></div>
+  </div>
+</footer>
+
+<script>
+  const loggedUser = JSON.parse(localStorage.getItem('memeforge_user') || 'null');
+if (loggedUser) {
+  document.getElementById('nav-auth').style.display = 'none';
+  document.getElementById('nav-user').style.display = 'flex';
+  document.getElementById('nav-username').textContent = 'HI  ' + loggedUser.name;
+}
+function logout() {
+  localStorage.removeItem('memeforge_user');
+  window.location.href = 'login.html';
+}
+  const API = 'http://localhost:5000';
+  let selectedTpl = null;
+  let lastMemeUrl = null;
+
+  // ── LOAD REAL TEMPLATES ──
+  async function loadTemplates() {
+    try {
+      const res = await fetch(`${API}/api/templates`);
+      const data = await res.json();
+      const grid = document.getElementById('tplGrid');
+      grid.innerHTML = '';
+
+      data.templates.forEach((t, i) => {
+        const div = document.createElement('div');
+        div.className = 'tpl-item' + (i === 0 ? ' selected' : '');
+        div.innerHTML = `
+          <img src="${t.url}" alt="${t.name}" loading="lazy"/>
+          <div class="tpl-label">${t.name}</div>`;
+        div.onclick = () => {
+          document.querySelectorAll('.tpl-item').forEach(x => x.classList.remove('selected'));
+          div.classList.add('selected');
+          selectedTpl = t;
+        };
+        grid.appendChild(div);
+        if (i === 0) selectedTpl = t;
+      });
+    } catch (err) {
+      document.getElementById('tplGrid').innerHTML = '<div class="tpl-loading">Failed to load templates. Is the server running?</div>';
+    }
+  }
+
+  // ── GENERATE MEME ──
+  async function generateMeme() {
+    const desc  = document.getElementById('descInput').value.trim();
+    const top   = document.getElementById('topText').value.trim();
+    const bot   = document.getElementById('botText').value.trim();
+    const style = document.getElementById('styleSelect').value;
+
+    if (!selectedTpl) { alert('Please select a template first!'); return; }
+    if (!desc && !top && !bot) {
+      const el = document.getElementById('descInput');
+      el.style.borderColor = 'var(--red)';
+      el.focus();
+      setTimeout(() => el.style.borderColor = '', 1500);
+      return;
+    }
+
+    const btn   = document.getElementById('genBtn');
+    const inner = document.getElementById('genBtnInner');
+    btn.disabled = true;
+    inner.innerHTML = '<div class="spinner"></div> Generating…';
+
+    const tipBox = document.getElementById('aiTip');
+    tipBox.classList.remove('show');
+
+    let finalTop = top, finalBot = bot;
+
+    try {
+      // Step 1: Get AI captions if description provided
+      if (desc) {
+        const aiRes = await fetch(`${API}/api/generate`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ description: desc, style })
+        });
+        const aiData = await aiRes.json();
+        if (!top && aiData.top) { finalTop = aiData.top; document.getElementById('topText').value = aiData.top; }
+        if (!bot && aiData.bottom) { finalBot = aiData.bottom; document.getElementById('botText').value = aiData.bottom; }
+        if (aiData.tip) { tipBox.innerHTML = `<strong>💡 AI Tip:</strong> ${aiData.tip}`; tipBox.classList.add('show'); }
+      }
+
+      // Step 2: Create real meme with Imgflip
+      const memeRes = await fetch(`${API}/api/create-meme`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          template_id: selectedTpl.id,
+          text0: finalTop,
+          text1: finalBot
+        })
+      });
+      const memeData = await memeRes.json();
+
+      if (memeData.url) {
+        lastMemeUrl = memeData.url;
+        const img = document.getElementById('memeResult');
+        img.src = memeData.url;
+        img.style.display = 'block';
+        document.getElementById('prevPlaceholder').style.display = 'none';
+        switchTab('preview');
+        addToGallery(memeData.url, finalTop, selectedTpl.name);
+      }
+
+    } catch (err) {
+      alert('Something went wrong! Make sure server is running.');
+    } finally {
+      btn.disabled = false;
+      inner.innerHTML = '✦ Generate meme';
+    }
+  }
+
+  // ── TABS ──
+  function switchTab(tab) {
+    document.getElementById('tabCreate').style.display  = tab === 'create'  ? '' : 'none';
+    document.getElementById('tabPreview').style.display = tab === 'preview' ? '' : 'none';
+    document.getElementById('tab-create').classList.toggle('active', tab === 'create');
+    document.getElementById('tab-preview').classList.toggle('active', tab === 'preview');
+  }
+
+  // ── DOWNLOAD ──
+  function downloadMeme() {
+    if (!lastMemeUrl) return;
+    const a = document.createElement('a');
+    a.href = lastMemeUrl;
+    a.download = 'meme.jpg';
+    a.target = '_blank';
+    a.click();
+  }
+
+  // ── GALLERY ──
+  function addToGallery(url, text, name) {
+    const g = document.getElementById('memeGallery');
+    // Clear placeholder
+    if (g.querySelector('[style*="span 4"]')) g.innerHTML = '';
+    while (g.children.length >= 8) g.removeChild(g.lastChild);
+
+    const card = document.createElement('div');
+    card.className = 'meme-card';
+    card.innerHTML = `
+      <div class="meme-card-img"><img src="${url}" alt="meme"/></div>
+      <div class="meme-card-foot">
+        <div class="meme-card-tag">${name}</div>
+        <div class="meme-card-text">${text}</div>
+      </div>`;
+    g.prepend(card);
+  }
+
+  // ── INIT ──
+  document.addEventListener('DOMContentLoaded', () => {
+    loadTemplates();
+    ['descInput', 'topText', 'botText'].forEach(id => {
+      document.getElementById(id).addEventListener('keydown', e => {
+        if (e.key === 'Enter') generateMeme();
+      });
+    });
+  });
+</script>
+</body>
+</html>
