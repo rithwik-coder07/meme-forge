@@ -5,7 +5,7 @@ MemeForge is a web application that allows users to create funny and viral memes
 
 ---
 
-## 🚀 Features
+## Features
 - AI-powered caption generation using Google Gemini
 - 20+ real meme templates from Imgflip API
 - User authentication (Sign up / Sign in)
@@ -14,7 +14,7 @@ MemeForge is a web application that allows users to create funny and viral memes
 
 ---
 
-## 🛠️ Technologies Used
+## Technologies Used
 
 | Frontend | Backend | APIs |
 |----------|---------|------|
